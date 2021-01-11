@@ -1,0 +1,43 @@
+#author Yiheng Zhou
+
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+Demo App
+{% endblock %}
+
+
+
+{% block content %}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+
+          <div id="navbar" class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+              <li><a href="{{ url_for('index') }}">Home</a></li>
+              <li class="active"><a href="{{ url_for('aboutus') }}">about us</a></li>
+              <li><a href="{{ url_for('information') }}">information</a></li>
+              <li><a href="{{ url_for('download') }}">download data</a></li>
+
+          </ul>
+              <ul class="nav navbar-nav navbar-right">
+              <li><a href="{{ url_for('login') }}">Login</a></li>
+              <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+          </ul>
+
+    <ul class="navbar-form navbar-right ">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+            <button type="submit" class="btn btn-default">Submit</button>
+
+            <div>
+{% endblock %}
