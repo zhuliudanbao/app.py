@@ -3,10 +3,8 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
-from form import RegisterForm,LoginForm
+from forms import RegisterForm,LoginForm
 import os
-
-
 
 app = Flask(__name__)
 
@@ -40,10 +38,20 @@ def load_user(user_id):
 
 
 
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+
+
+
 @app.route('/')
 @app.route('/index')
 def index():
     return render_template('index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -87,11 +95,11 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
+
 
 @app.route('/logout')
 @login_required
@@ -99,18 +107,22 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 @app.route('/aboutus')
 def aboutus():
     return render_template('aboutus.html')
+
 
 @app.route('/info')
 def information():
     return render_template('information.html')
 
-@app.route('/download',methods=['GET'])
+
+@app.route('/download', methods=['GET'])
 def download():
     return render_template('downloaddata.html')
 
 
 if __name__ == '__main__':
-    app.run(port=5000,debug=True)
+    app.run(debug=True)
+
