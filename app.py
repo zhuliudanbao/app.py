@@ -1,18 +1,20 @@
-#author Yiheng Zhou
-#hello world!!!!
 from flask import Flask, render_template, url_for, redirect,flash
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,BooleanField
-from wtforms.validators import InputRequired,Length,email
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash,check_password_hash
+from form import RegisterForm,LoginForm
+import os
+
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'asdasdasd'
-import os
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL','sqlite:///C:/Users/Administrator/PycharmProjects/flaskProject/venv/database.db')
+
+class Config(object):
+    SECRET_KEY = 'sadasdasdgdsggdagd'
+    SQLALCHEMY_DATABASE_URI= os.getenv('DATABASE_URL','sqlite:///C:/Users/Administrator/PycharmProjects/app/venv/database.db')
+
+app.config.from_object(Config)
 
 
 bootstrap = Bootstrap(app)
@@ -20,13 +22,15 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message='You must login to access this page'
+login_manager.login_message_category='info'
 
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(80))
+    password = db.Column(db.String(20))
 
 
 
@@ -34,15 +38,6 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-    remember = BooleanField('remember me')
-
-class RegisterForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired(), email(message='Invalid email'), Length(max=50)])
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
 
 @app.route('/')
@@ -53,16 +48,19 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data,
-                                    password=form.password.data).first()
-        if user:
-                login_user(user, remember=form.remember.data)
 
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if check_password_hash(user.password,form.password.data):
+                login_user(user, remember=form.remember.data)
+                flash('Login success',category='info')
                 return redirect(url_for('dashboard'))
 
-        flash('wrong password or username')
+        flash('User not exit or password not match',category='danger')
         return redirect(url_for('login'))
 
 
@@ -76,14 +74,19 @@ def signup():
 
     if form.validate_on_submit():
 
-        new_user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+        hashed_password=generate_password_hash(form.password.data,method='sha256')
+        new_user = User(username=form.username.data,
+                        email=form.email.data,
+                        password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect(url_for('login'))
-        
+
+        return render_template('pagejump.html')
 
     return render_template('signup.html', form=form)
+
+
 
 @app.route('/dashboard')
 @login_required
@@ -110,4 +113,4 @@ def download():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000,debug=True)

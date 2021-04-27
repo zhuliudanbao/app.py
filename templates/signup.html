@@ -3,6 +3,11 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='style.css')}}">
+{% endblock %}
+
 {% block content %}
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -21,34 +26,41 @@
               <li><a href="{{ url_for('aboutus') }}">about us</a></li>
               <li><a href="{{ url_for('information') }}">information</a></li>
               <li><a href="{{ url_for('download') }}">download data</a></li>
+              </ul>
 
-          </ul>
               <ul class="nav navbar-nav navbar-right">
               <li><a href="{{ url_for('login') }}">Login</a></li>
               <li class="active"><a href="{{ url_for('signup') }}">Sign Up</a></li>
+              </ul>
+
+          <ul class="navbar-form navbar-right ">
+              <div class="form-group">
+                  <input type="text" class="form-control" placeholder="Search">
+                  <button type="submit" class="btn btn-default">Submit</button>
+              </div>
           </ul>
 
-    <ul class="navbar-form navbar-right ">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search">
-            <button type="submit" class="btn btn-default">Submit</button>
-            <div>
     </nav>
+            {% for message in get_flashed_messages() %}
+               <br><br>
+        <div class="alert alert-danger" role="alert">
+                {{ message }}
+        </div>
+    {% endfor %}
+<br><br>
+    <div class="container2">
 
-    </div><!-- /.container -->
+        <form class="form-signin" method="POST" action="/signup">
+            <h3 class="form-signin-heading">Sign Up</h3>
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.username) }}
+            {{ wtf.form_field(form.email) }}
+            {{ wtf.form_field(form.password) }}
+            {{ wtf.form_field(form.confirm) }}
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
+        </form>
 
-    <p></p>
-    <div class="container">
+    </div>
 
-    <form class="form-signin" method="POST" action="/signup">
-    <h2 class="form-signin-heading">Sign Up</h2>
-    {{ form.hidden_tag() }}
-    {{ wtf.form_field(form.username) }}
-    {{ wtf.form_field(form.email) }}
-    {{ wtf.form_field(form.password) }}
 
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
-  </form>
-
-</div> <!-- /container -->
 {% endblock %}
